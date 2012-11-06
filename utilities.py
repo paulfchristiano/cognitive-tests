@@ -1,6 +1,7 @@
 from datetime import datetime
 from glob import glob as raw_glob
 import os
+import math
 import random
 import string
 import sys
@@ -9,6 +10,11 @@ import copy
 def mean(xs):
     l = list(xs)
     return sum(l) / len(l) if l else 0
+
+def deviation(xs):
+    l = list(xs)
+    m = mean(l)
+    return math.sqrt(mean((x - m)**2.0 for x in l))
 
 def wrap(text, width):
     """

@@ -91,7 +91,7 @@ if __name__ == "__main__" and 'noop' not in sys.argv:
         QuestionGenerator(MultiplicationQuestion, 'Arithmetic'),
         QuestionGenerator(AnagramQuestion, 'Anagrams'),
         QuestionGenerator(AnalogyQuestion, 'Analogies'),
-        QuestionGenerator(AnalogyQuestion, 'Make N'),
+        QuestionGenerator(ExpressionQuestion, 'Make N'),
         QuestionGenerator(Medley, 'Medley', 'Medley is a balanced mix of the other problems'),
         QuestionGenerator( 
             Survey, 'Take the survey.', 

@@ -95,7 +95,7 @@ class Question:
 
     @classmethod
     def make_instance_for_session(c, session, **args):
-        if c.name() in session.open_questions:
+        if c.name() in session.open_questions and session.user.from_online:
             questions = session.open_questions[c.name()]
             if questions:
                 max_count = max(count for (question, count) in questions.items())
@@ -351,9 +351,9 @@ class AnalogyQuestion(Question):
 
     def clarify(self, request):
         pretty_print('There is a simple rule that relates each string '\
-              'on the left hand side to its partner on the right hand side.')
-        print('Find the rule, and determine what string should replace "?".')
-        pretty_print('The rule consists of up to {} atomic operations, '\
+              'on the left hand side to its partner on the right hand side.'\
+              ' Find the rule, and determine what string should replace "?".'\
+              'The rule consists of up to {} atomic operations, '\
               'each of which is one of:'.format(self.op.size()))
         print(' (*) Switching two positions in the string')
         print(' (*) Reversing the string')
@@ -365,6 +365,11 @@ class AnalogyQuestion(Question):
         print(' (*) Replacing each {0} with {1} and vice versa (or {1} with {2}, etc.)'.format(
             self.alphabet[0], self.alphabet[1], self.alphabet[2]
         ))
+
+    def __setstate__(self, state):
+        self.__dict__ = state
+        if 'alphabet' not in state:
+            self.alphabet = 'abc'
 
     @classmethod
     def make_instance(c, size=8, alphabet='abc', length=4, examples=4):
