@@ -1,0 +1,14 @@
+
+Here's how it works:
+
+There are several types of questions.  Within the main menu you can choose what type of question you want to answer.  To select an option, press the number associated to that option and hit enter.  At any time you can type 'help' and hit enter to see clarifying text.
+
+Once you select a type of question, you will be given questions of that type until you type 'exit.'  To give up on a problem, type 'pass.' You are encouraged to pass relatively rarely.  For reference, I pass when a problem looks like it will take more than 3-4 minutes.  For good scientific hygiene, don't type "exit" if you see a question and don't like it. Instead, answer (or give up on) one last question after deciding to quit. 
+
+[Press Enter to continue]
+
+
+If you choose the question type 'Medley' you will receive a balanced mix of questions.  The distribution is chosen such that you spend an equal amount of time on each problem type.  From the main menu you can also change your current username or fill out a survey describing your current condition, including a description of your last meal, last night's sleep, and current environment.  (The survey defaults to the last values you entered, so be sure to fill out any field that has changed.  If you don't like filling out the survey, leave fields blank rather than letting them become innacurate.)
+
+
+After this you will enter a username which will be used to identify you. Everything you type (together with timing information) will be recorded and sent to the server.  Most questions you answer will have already been answered by someone else; information about different participant's accuracy and speed on a particular question are used to control for random variation in the difficulty of problems.
