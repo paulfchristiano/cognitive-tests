@@ -1,3 +1,4 @@
+import pdb
 from session import *
 from questions import *
 from utilities import pretty_print
@@ -92,12 +93,12 @@ if __name__ == "__main__":
         QuestionGenerator(AnalogyQuestion, 'Make N'),
         QuestionGenerator(Medley, 'Medley', 'Medley is a balanced mix of the other problems'),
         QuestionGenerator( 
-            question_type = Survey, description='Take the survey.', 
-            clarification="The survey is a set of questions evaluating your current state, "\
+            Survey, 'Take the survey.', 
+            "The survey is a set of questions evaluating your current state, "\
             "to help determine what conditions lead to improved or impaired performance",
             args = {'questions': survey_questions}
         ), QuestionGenerator(
-            OptionMenu, description='Options',
+            OptionMenu, 'Options',
             args = {'options': session_options}
         )
     ]

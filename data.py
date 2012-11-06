@@ -47,12 +47,11 @@ def load_sessions_from_file(files=DEFAULT_FILES):
                 try:
                     sessions.add(cPickle.load(f))
                 except (cPickle.PicklingError, EOFError, AssertionError, AttributeError):
-                    print("")
-                    print("Warning! Failed to unpickle from {}.".format(record))
-                    if not corruptions:
-                        print("If this was a session you recorded yourself, something is wrong.")
-                        print("Hopefully you just got bad data from someone else!")
                     corruptions.add(record)
+    if corruptions:
+        print("Warning! Failed to pickle {} sessions stored locally.".format(
+            len(corruptions)
+        ))
     with open('data/corruptions', 'w') as f:
         for s in corruptions:
             f.write("{}\n".format(s))
@@ -89,7 +88,7 @@ def db_sessions(cursor=None):
     cursor.execute('SELECT id from sessions')
     return {x[0] for x in cursor.fetchall()}
 
-def write_sessions_to_db(sessions):
+def write_sessions_to_db(sessions, force=False):
     c = get_cursor()
     known_sessions = db_sessions(c)
     [ 
@@ -98,7 +97,7 @@ def write_sessions_to_db(sessions):
             'pickled':cPickle.dumps(session),
             'username':session.user.name
         }, table='sessions', cursor=c) 
-        for session in sessions if session.id not in known_sessions 
+        for session in sessions if force or session.id not in known_sessions 
     ]
 
 def questions(session):

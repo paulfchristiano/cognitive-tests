@@ -153,7 +153,7 @@ class Interaction:
         self.__dict__ = state
 
     def duration(self):
-        return self.end_time - self.start_time
+        return self.end_time - self.start_time if self.end_time else time() - self.start_time
 
     def __init__(self, question):
         self.start_time = time()

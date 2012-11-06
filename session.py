@@ -31,7 +31,7 @@ class Session:
 
     def intro(self):
         print("\nWelcome, {}!".format(self.user.name))
-        print("Type 'help' for help, 'exit' to quit, or 'pass' to give up on a problem.")
+        pretty_print("Type 'help' for help, 'exit' to quit, or 'pass' to give up on a problem.")
 
     def pose_question(self, question_generator):
         while True:
@@ -51,7 +51,7 @@ class Session:
         return self
 
     def duration(self):
-        return self.end_time - self.start_time
+        return self.end_time - self.start_time if self.end_time else time() - self.start_time
 
     def save(self):
         with open(self.filename(), 'w') as f:
