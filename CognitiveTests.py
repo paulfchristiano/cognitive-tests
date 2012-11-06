@@ -1,4 +1,5 @@
 import pdb
+import sys
 from session import *
 from questions import *
 from utilities import pretty_print
@@ -50,7 +51,7 @@ def is_first_time():
     except:
         return True
 
-if __name__ == "__main__":
+if __name__ == "__main__" and 'noop' not in sys.argv:
     if is_first_time():
         display_intro()
     if need_db_sync():

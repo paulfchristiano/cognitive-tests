@@ -11,16 +11,19 @@ import pymysql
 
 DEFAULT_FILES="data/Session-*"
 
-def load_sessions_from_db(cursor=None):
+def load_sessions_from_db(cursor=None, load_all=False):
     if cursor is None:
         cursor = get_cursor()
     sessions = set()
     corruptions = set()
-    cursor.execute("SELECT id, pickled from sessions where corrupt=FALSE")
+    if load_all:
+        cursor.execute("SELECT id, pickled from sessions")
+    else:
+        cursor.execute("SELECT id, pickled from sessions where corrupt=FALSE")
     for (session_id, pickled) in cursor.fetchall():
         try:
             sessions.add(cPickle.loads(pickled))
-        except (cPickle.UnpicklingError, AttributeError, AssertionError):
+        except:
             corruptions.add(session_id)
     if corruptions:
         print("Warning! Failed to pickle {} sessions from the database.".format(
@@ -31,6 +34,11 @@ def load_sessions_from_db(cursor=None):
                 pymysql.escape_string(session_id)
             ))
     return sessions
+
+def pickled_sessions_from_db():
+    cursor = get_cursor()
+    cursor.execute('SELECT id, pickled from sessions')
+    return list(cursor.fetchall())
 
 def load_sessions_from_file(files=DEFAULT_FILES):
     sessions = set()
@@ -46,7 +54,7 @@ def load_sessions_from_file(files=DEFAULT_FILES):
             with open(record, 'r') as f:
                 try:
                     sessions.add(cPickle.load(f))
-                except (cPickle.PicklingError, EOFError, AssertionError, AttributeError):
+                except:
                     corruptions.add(record)
     if corruptions:
         print("Warning! Failed to pickle {} sessions stored locally.".format(
@@ -70,11 +78,13 @@ def write_data_to_db(data_dict, cursor=None, table='sessions'):
     if cursor is None:
         cursor = get_cursor()
     data_list = data_dict.items()
-    fields = ",".join(item[0] for item in data_list)
-    values = ",".join(pymysql.escape_string(str(item[1])) for item in data_list)
+    fs = [item[0] for item in data_list]
+    vs = [pymysql.escape_string(str(item[1])) for item in data_list]
     cursor.execute(
-        'INSERT INTO {table} ({fields}) values ({values})'.format(
-            table=table, fields=fields, values=values
+        'INSERT INTO {table} ({fields}) values ({values})'\
+        'ON DUPLICATE KEY UPDATE {update}'.format(
+            table=table, fields=','.join(fs), values=','.join(vs), 
+            update=','.join('{}={}'.format(f, v) for f, v in zip(fs, vs))
         )
     )
 
@@ -95,7 +105,8 @@ def write_sessions_to_db(sessions, force=False):
         write_data_to_db({
             'id':session.id,
             'pickled':cPickle.dumps(session),
-            'username':session.user.name
+            'username':session.user.name,
+            'corrupt':0
         }, table='sessions', cursor=c) 
         for session in sessions if force or session.id not in known_sessions 
     ]
