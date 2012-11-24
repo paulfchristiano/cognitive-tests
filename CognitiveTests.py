@@ -13,6 +13,7 @@ def need_db_sync():
         return True
 
 def db_sync():
+    try:
         print("Syncing with database...")
         db_sessions = data.load_sessions_from_db()
         print("...loaded sessions from database...")
@@ -23,6 +24,8 @@ def db_sync():
             session.save()
         with open('data/sync_history', 'w') as f:
             f.write("{}\n".format(time()))
+    except Exception as e:
+        print("Failed to connect with the database.")
 
 def display_intro():
     paragraphs = []

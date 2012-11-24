@@ -98,10 +98,15 @@ class Question:
         if c.name() in session.open_questions and session.user.from_online:
             questions = session.open_questions[c.name()]
             if questions:
+                candidate_questions = set()
                 max_count = max(count for (question, count) in questions.items())
-                candidate_questions = set(question 
-                                          for (question, count) in questions.items()
-                                          if count == max_count)
+                while len(candidate_questions) < 100 and max_count > 0:
+                    candidate_questions.update(
+                        question 
+                        for (question, count) in questions.items()
+                        if count == max_count
+                    )
+                    max_count -= 1
                 question = random.sample(candidate_questions, 1)[0]
                 del questions[question]
                 return question
@@ -647,7 +652,6 @@ class OptionMenu(Pick):
         if 'option_args' in args:
             option_args.update(args['option_args'])
         return c(option_args = option_args, **args)
-
 class Survey(OptionMenu):
     def __init__(self, questions, answers):
         def inquire(x):
