@@ -185,7 +185,9 @@ class Request(Response):
         self.type = t
 
 class QuestionGenerator():
-    def __init__(self, question_type, description="", clarification="", args={}):
+    def __init__(self, question_type, description="", 
+                 clarification="", args={}, repeat=True):
+        self.repeat = repeat
         self.question_type = question_type
         self.description = description
         self.clarification = clarification
@@ -196,6 +198,11 @@ class QuestionGenerator():
         if 'args' in picklable:
             picklable['args'] = None
         return picklable
+
+    def __setstate__(self, properties):
+        self.__dict__ = properties
+        if 'repeat' not in properties:
+            self.repeat = True
 
     def make_instance_for_session(self, session):
         if self.args is None:
@@ -652,19 +659,32 @@ class OptionMenu(Pick):
         if 'option_args' in args:
             option_args.update(args['option_args'])
         return c(option_args = option_args, **args)
-class Survey(OptionMenu):
-    def __init__(self, questions, answers):
-        def inquire(x):
-            def inquire_for_x():
-                answers[x] = prompt(x)
-            return inquire_for_x
-        def display_answer(x):
-            return lambda : answers.get(x, "")
-        options = [{'text':"{} {}".format(question, "{}"), 
-                           'display':display_answer(question),
-                           'value':inquire(question)}
-                         for question in questions]
-        OptionMenu.__init__(self, options)
+
+class Survey(Question):
+    def __init__(self, questions, answers, **args):
+        Question.__init__(self, **args)
+        self.questions = questions
+        self.current_question = 0
+        self.answers = answers
+
+    def render(self):
+        question = self.questions[self.current_question]
+        answer = self.answers.get(question,"")
+        if not answer:
+            answer = 'None'
+        return "{} [Enter nothing to default to last entry: {}]".format(question, answer)
+
+    def check(self, response):
+        return self.current_question + 1 >= len(self.questions) 
+
+    def reject(self, response):
+        self.accept(response)
+
+    def accept(self, response):
+        question = self.questions[self.current_question]
+        if response:
+            self.answers[question] = response
+        self.current_question += 1
 
     @classmethod
     def make_instance_for_session(c, session, questions):

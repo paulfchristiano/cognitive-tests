@@ -100,7 +100,8 @@ if __name__ == "__main__" and 'noop' not in sys.argv:
             Survey, 'Take the survey.', 
             "The survey is a set of questions evaluating your current state, "\
             "to help determine what conditions lead to improved or impaired performance",
-            args = {'questions': survey_questions}
+            args = {'questions': survey_questions},
+            repeat=False
         ), QuestionGenerator(
             OptionMenu, 'Options',
             args = {'options': session_options}

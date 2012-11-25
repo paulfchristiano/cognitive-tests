@@ -43,7 +43,7 @@ def process_path(path):
     if getattr(sys, 'frozen', None):
          basedir = os.path.abspath(sys._MEIPASS)
     else:
-         basedir = os.path.dirname(os.path.abspath(__file__))
+         basedir = os.path.dirname(os.path.realpath(__file__))
     return os.path.join(basedir, path)
 
 def open_processed(path, mode):

@@ -40,6 +40,8 @@ class Session:
                 return
             else:
                 self.interactions.append(interaction)
+                if not question_generator.repeat:
+                    return
 
     def end_session(self): 
         self.end_time = time()
