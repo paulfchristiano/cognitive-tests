@@ -70,7 +70,7 @@ def get_cursor():
     DB = 'psychometrics'
     USER = 'participant'
     PASSWD = 'obscure8999city'
-    cursor = pymysql.connect(host=HOST, db=DB, user=USER, passwd=PASSWD).cursor()
+    cursor = pymysql.connect(host=HOST, db=DB, user=USER, passwd=PASSWD, connect_timeout=5).cursor()
     cursor.execute('set autocommit = 1')
     return cursor
 

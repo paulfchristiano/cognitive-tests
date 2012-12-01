@@ -38,9 +38,18 @@ class Question:
         self.finish()
         return interaction.resolve(Interaction.incorrect)
 
+    def get_response(self):
+        while True:
+            interaction = self.ask()
+            if interaction.has_answer():
+                return interaction.answer()
+
     def ask_once(self):
         while True:
-            raw_answer = prompt(self.render())
+            view = self.render()
+            if self.prompt:
+                view = "{}\n\n{}".format(view, self.prompt)
+            raw_answer = prompt(view)
             commands = {
                 'help':Request.clarification,
                 'explain':Request.clarification,
@@ -126,9 +135,10 @@ class Question:
     def __hash__(self):
         return utilities.make_hash(self.__dict__)
 
-    def __init__(self, allowed_attempts=float("inf"), version=1):
+    def __init__(self, prompt=None, allowed_attempts=float("inf"), version=1):
         self.allowed_attempts=allowed_attempts
         self.data_format_version = version
+        self.prompt = prompt
 
 class Interaction:
     indeterminate = 0
@@ -141,6 +151,9 @@ class Interaction:
         self.status = status
         self.end_time = time()
         return self
+
+    def has_answer(self):
+        return len(self.responses) > 0
 
     def __getstate__(self):
         picklable = self.__dict__.copy()

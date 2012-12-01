@@ -72,14 +72,34 @@ class Session:
     def refresh(self):
         self.set_user(self.user)
 
+    def defined(self, p):
+        for rule in interpretation_rules[p]:
+            if utilities.equivalent(
+                    self.survey_responses[rule['question']], 
+                    rule['answer']):
+                return True
+        return False
+
+    def get(self, p):
+        for rule in interpretation_rules[p]:
+            if utilities.equivalent(
+                    self.survey_responses[rule['question']], 
+                    rule['answer']):
+                return rule['result']
+        return None
+
     def __getstate__(self):
         picklable = self.__dict__.copy()
         if 'open_questions' in picklable:
             del picklable['open_questions']
+        if 'survey_responses' in picklable:
+            picklable['survey_responses'] = dict(picklable['survey_responses'])
         return picklable
 
     def __setstate__(self, state):
         assert('interactions' in state)
+        survey_responses = state.get('survey_responses', dict())
+        state['survey_responses'] = defaultdict(lambda : None, survey_responses)
         self.__dict__ = state
 
     def __init__(self, question_generators, user=None):
@@ -172,4 +192,53 @@ class User:
             else:
                 return user
 
+interpretation_rules = defaultdict(list)
 
+def load_interpretation_rules():
+    with open('interpretation_rules', 'r') as f:
+        for line in f:
+            (p, question, answer, result) = line.split()
+            interpretation_rules[p].append({'question':question, 'answer':answer, 'result':result})
+
+def add_interpretation_rule(p, question, answer, result):
+    interpretation_rules[p].append({'question':question, 'answer':answer, 'result':result})
+
+def save_interpretation_rules():
+    with open('interpretation_rules', 'w') as f:
+        for p in interpretation_rules:
+            for rule in interpretation_rules[p]:
+                f.write("{} {} {} {}\n".format(p, rule['question'], rule['answer'], rule['result']))
+
+def annotate_sessions(sessions):
+    p = raw_input("What is the name of the property you want to annotate?\n")
+    matched_questions = set()
+    unmatched_questions = set()
+    for session in sessions:
+        if not session.defined(p):
+            questions = set(session.survey_responses.keys()) - unmatched_questions
+            question = None
+            for q in matched_questions & questions:
+                if not question:
+                    question = q
+                else:
+                    raise Exception("Multiple matched questions!")
+            if not questions:
+                question = None
+            elif not question:
+                picker = Pick(
+                    [{'text':q, 'value':q} for q in questions] + \
+                    [{'text':"None of the above.", 'value':None}],
+                    prompt = "What question do you want to use?"
+                )
+                question = picker.get_response()
+                if question:
+                    matched_questions.add(question)
+                unmatched_questions.update(questions - {question})
+        while not session.defined(p):
+            answer = session.survey_responses[question]
+            if answer:
+                result = input('What value goes with "{}"?\n'.format(answer))
+                add_interpretation_rule(p, question, answer, result)
+            else:
+                break
+    save_interpretation_rules()

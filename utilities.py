@@ -11,6 +11,14 @@ def mean(xs):
     l = list(xs)
     return sum(l) / len(l) if l else 0
 
+def equivalent(s1, s2):
+    if s1 is None or s2 is None:
+        return s1 is None and s2 is None
+    return ''.join(s1.split()) == ''.join(s2.split())
+
+def hourse_elapsed(datetime, hour):
+    return ((datetime.hour + datetime.minute / 60.) - hour) % 24
+
 def deviation(xs):
     l = list(xs)
     m = mean(l)
